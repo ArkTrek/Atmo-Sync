@@ -48,43 +48,22 @@
         </div>
     </div>
 
-    <!-- Atmospheric & Weather Simulator Panel -->
-    <div class="glass-card" style="margin-bottom: 2rem; background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(240,248,255,0.65)); border-color: rgba(5, 150, 105, 0.15);">
-        <h3 class="glass-title"><i class="fa-solid fa-cloud-sun-rain"></i> Atmospheric & Weather Simulator</h3>
-        <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.9rem; line-height: 1.5;">
-            Atmo Sync translates greenhouse gas concentrations into physical weather simulations. Toggle between <strong>Auto Sync</strong> (which binds the background weather to your personal carbon calculator footprint) or select a manual climate preset.
-        </p>
-        
-        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
-            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">Preset Climates:</span>
-            
-            <button class="tab-btn weather-preset-btn" data-weather="auto" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
-                🔄 Auto Sync
-            </button>
-            <button class="tab-btn weather-preset-btn" data-weather="clear" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
-                ☀️ Clear & Sunny
-            </button>
-            <button class="tab-btn weather-preset-btn" data-weather="windy" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
-                🍃 Windy Breeze
-            </button>
-            <button class="tab-btn weather-preset-btn" data-weather="foggy" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
-                🌫️ Misty Fog
-            </button>
-            <button class="tab-btn weather-preset-btn" data-weather="rain" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
-                🌧️ Heavy Rain
-            </button>
-            <button class="tab-btn weather-preset-btn" data-weather="storm" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
-                ⛈️ Severe Storm
-            </button>
-        </div>
-    </div>
+
 
     <!-- Active Grid Stats Monitor -->
     <div class="glass-card">
-        <h2 class="glass-title"><i class="fa-solid fa-bolt"></i> National Electricity Grid Decarbonization Monitor</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">
+        <h2 class="glass-title" id="grid-monitor-title"><i class="fa-solid fa-bolt"></i> Great Britain Grid Decarbonization Monitor</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;" id="grid-monitor-desc">
             Below is the real-time electrical grid intensity of Great Britain. Grid intensity measures the grams of CO₂ emissions generated per kilowatt-hour of electricity produced (gCO₂e/kWh).
         </p>
+
+        <!-- Grid Telemetry Sync Indicator -->
+        <div id="grid-sync-indicator" style="display: none; align-items: center; justify-content: space-between; gap: 0.75rem; background: var(--accent-sage); border: 1px solid rgba(5,150,105,0.25); padding: 0.65rem 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); box-shadow: var(--shadow-sm);">
+            <span>📍 Synced to global telemetry: <span id="synced-region-name" style="color: var(--accent); font-weight: 700;">-</span></span>
+            <button id="reset-grid-sync-btn" style="border: none; background: var(--accent); color: white; padding: 0.3rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 0.25rem;">
+                <i class="fa-solid fa-rotate-left"></i> Reset to GB National
+            </button>
+        </div>
         
         <!-- Live Stat Counters -->
         <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
@@ -152,6 +131,101 @@
         
         <div id="news-feed-content" class="news-feed-container" style="display: none;">
             <!-- Filled by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- TAB: ATMOSPHERE SIMULATOR -->
+<div id="atmosphere" class="tab-panel">
+    <!-- Atmospheric & Weather Simulator Panel -->
+    <div class="glass-card" style="background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(240,248,255,0.65)); border-color: rgba(5, 150, 105, 0.15);">
+        <h2 class="glass-title"><i class="fa-solid fa-cloud-sun-rain"></i> Atmospheric & Weather Simulator</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6;">
+            Welcome to the Atmo Sync climate simulator sandbox. Here, you can select dynamic weather presets or tweak parameters individually to see how environmental variables interact in real-time.
+        </p>
+
+        <!-- Presets Card -->
+        <div style="background: rgba(255,255,255,0.3); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.25rem; margin-bottom: 2rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem;">Preset Climates</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+                <button class="tab-btn weather-preset-btn" data-weather="auto" style="padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                    🔄 Auto Sync (Calculator)
+                </button>
+                <button class="tab-btn weather-preset-btn" data-weather="clear" style="padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                    ☀️ Clear & Sunny
+                </button>
+                <button class="tab-btn weather-preset-btn" data-weather="windy" style="padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                    🍃 Windy Breeze
+                </button>
+                <button class="tab-btn weather-preset-btn" data-weather="foggy" style="padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                    🌫️ Misty Fog
+                </button>
+                <button class="tab-btn weather-preset-btn" data-weather="rain" style="padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                    🌧️ Heavy Rain
+                </button>
+                <button class="tab-btn weather-preset-btn" data-weather="storm" style="padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                    ⛈️ Severe Storm
+                </button>
+            </div>
+        </div>
+
+        <!-- Custom Sandbox Sliders -->
+        <div style="background: rgba(255,255,255,0.3); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="fa-solid fa-sliders" style="color: var(--accent);"></i> Custom Simulation Controls
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                <!-- Rain Intensity -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; justify-content: space-between;">
+                        <span>Rain Density (Drops)</span>
+                        <span id="sim-rain-intensity-val" style="color: var(--accent); font-weight: 700;">0</span>
+                    </label>
+                    <input type="range" id="sim-rain-intensity" class="range-slider" min="0" max="500" value="0">
+                </div>
+
+                <!-- Rain Speed -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; justify-content: space-between;">
+                        <span>Rain Drop Velocity</span>
+                        <span id="sim-rain-speed-val" style="color: var(--accent); font-weight: 700;">0 px/s</span>
+                    </label>
+                    <input type="range" id="sim-rain-speed" class="range-slider" min="0" max="35" value="0">
+                </div>
+
+                <!-- Wind Speed -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; justify-content: space-between;">
+                        <span>Wind Speed & Direction</span>
+                        <span id="sim-wind-speed-val" style="color: var(--accent); font-weight: 700;">0.0</span>
+                    </label>
+                    <input type="range" id="sim-wind-speed" class="range-slider" min="-10" max="10" step="0.5" value="0">
+                </div>
+
+                <!-- Fog Density -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; justify-content: space-between;">
+                        <span>Fog & Mist Density</span>
+                        <span id="sim-fog-density-val" style="color: var(--accent); font-weight: 700;">0%</span>
+                    </label>
+                    <input type="range" id="sim-fog-density" class="range-slider" min="0" max="100" value="0">
+                </div>
+
+                <!-- Lightning Chance -->
+                <div class="form-group" style="grid-column: span 1;">
+                    <label class="form-label" style="display: flex; justify-content: space-between;">
+                        <span>Lightning Frequency</span>
+                        <span id="sim-lightning-chance-val" style="color: var(--accent); font-weight: 700;">0.00%</span>
+                    </label>
+                    <input type="range" id="sim-lightning-chance" class="range-slider" min="0" max="100" value="0">
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; text-align: right;">
+                <button id="reset-sim-btn" class="btn-primary" style="width: auto; padding: 0.5rem 1.5rem; font-size: 0.85rem; background: var(--text-secondary);">
+                    Reset to Clear Weather
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -347,6 +421,48 @@
                 <!-- Dynamic Suggestions box based on highest contributor -->
                 <div id="dynamic-reco-box" style="width: 100%; margin-top: 1.5rem; background: rgba(255, 255, 255, 0.4); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.25rem;">
                     <!-- Filled by JavaScript -->
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 0.75rem; width: 100%; margin-top: 1.25rem;">
+                    <button type="button" id="save-audit-btn" class="btn-primary" style="flex: 1; font-size: 0.85rem; padding: 0.65rem 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Progress
+                    </button>
+                    <button type="button" id="print-report-btn" class="btn-primary" style="flex: 1; font-size: 0.85rem; padding: 0.65rem 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--text-secondary);">
+                        <i class="fa-solid fa-file-pdf"></i> Export Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Audit History & Emission Trends Panel -->
+        <div class="glass-card" id="history-panel" style="margin-top: 2rem; display: none;">
+            <h3 class="glass-title"><i class="fa-solid fa-clock-rotate-left"></i> Carbon Audit History & Trends</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Track your emission reduction timeline by reviewing and comparing saved audits.
+            </p>
+
+            <div class="dashboard-grid" style="grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; align-items: stretch;">
+                <!-- History Trend Chart -->
+                <div class="stat-box" style="align-items: stretch; padding: 1.25rem; background: rgba(255, 255, 255, 0.35);">
+                    <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary); text-align: center;">Carbon Footprint Trend (Tons CO₂e)</h4>
+                    <div style="height: 200px; width: 100%; position: relative;">
+                        <canvas id="history-trend-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- List of Saved Audits -->
+                <div class="stat-box" style="align-items: stretch; padding: 1.25rem; background: rgba(255, 255, 255, 0.35); display: flex; flex-direction: column;">
+                    <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center;">
+                        <span>Saved Entries</span>
+                        <button type="button" id="clear-history-btn" style="border: none; background: transparent; color: var(--index-high); font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                            <i class="fa-solid fa-trash-can"></i> Clear All
+                        </button>
+                    </h4>
+                    
+                    <div id="saved-audits-list" style="overflow-y: auto; max-height: 180px; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; text-align: left;">
+                        <!-- Populated dynamically by JS -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -822,44 +938,177 @@
             });
     }
 
-    // --- WEATHER SIMULATOR PRESETS UI LOGIC ---
+    // --- WEATHER SIMULATOR PRESETS & SLIDERS UI LOGIC ---
     const weatherBtns = document.querySelectorAll('.weather-preset-btn');
-    if (weatherBtns.length > 0) {
-        // Initialize active preset state on load based on localStorage weatherMode
-        const currentMode = localStorage.getItem('weatherMode') || 'auto';
-        weatherBtns.forEach(btn => {
-            if (btn.dataset.weather === currentMode) {
-                btn.classList.add('active');
-                btn.style.background = 'var(--accent)';
-                btn.style.color = '#ffffff';
-                btn.style.borderColor = 'var(--accent)';
-            } else {
+    const simRain = document.getElementById('sim-rain-intensity');
+    const simSpeed = document.getElementById('sim-rain-speed');
+    const simWind = document.getElementById('sim-wind-speed');
+    const simFog = document.getElementById('sim-fog-density');
+    const simLightning = document.getElementById('sim-lightning-chance');
+    const resetSimBtn = document.getElementById('reset-sim-btn');
+
+    function updateCustomSim() {
+        if (window.rainSimulator) {
+            // scale lightning slider value (0 to 100) to actual chance (0 to 0.02)
+            const rain = simRain.value;
+            const speed = simSpeed.value;
+            const wind = simWind.value;
+            const fog = simFog.value;
+            const lightningChance = (simLightning.value / 100) * 0.02;
+            
+            window.rainSimulator.setCustomParameters(rain, speed, wind, lightningChance, fog);
+            
+            // visually deselect all preset buttons
+            weatherBtns.forEach(btn => {
                 btn.classList.remove('active');
                 btn.style.background = 'transparent';
                 btn.style.color = 'var(--text-primary)';
                 btn.style.borderColor = 'rgba(5,150,105,0.2)';
+            });
+        }
+    }
+
+    if (simRain && simSpeed && simWind && simFog && simLightning) {
+        [simRain, simSpeed, simWind, simFog, simLightning].forEach(slider => {
+            slider.addEventListener('input', () => {
+                // update visual slider text
+                const valEl = document.getElementById(`${slider.id}-val`);
+                if (valEl) {
+                    if (slider.id === 'sim-wind-speed') {
+                        valEl.textContent = parseFloat(slider.value).toFixed(1);
+                    } else if (slider.id === 'sim-lightning-chance') {
+                        valEl.textContent = ((slider.value / 100) * 2).toFixed(2) + '%';
+                    } else if (slider.id === 'sim-rain-speed') {
+                        valEl.textContent = slider.value + ' px/s';
+                    } else if (slider.id === 'sim-fog-density') {
+                        valEl.textContent = slider.value + '%';
+                    } else {
+                        valEl.textContent = slider.value;
+                    }
+                }
+                updateCustomSim();
+            });
+        });
+    }
+
+    if (resetSimBtn) {
+        resetSimBtn.addEventListener('click', () => {
+            if (window.rainSimulator) {
+                window.rainSimulator.setMode('clear');
+                highlightPreset('clear');
             }
-            
+        });
+    }
+
+    function highlightPreset(mode) {
+        weatherBtns.forEach(b => {
+            if (b.dataset.weather === mode) {
+                b.classList.add('active');
+                b.style.background = 'var(--accent)';
+                b.style.color = '#ffffff';
+                b.style.borderColor = 'var(--accent)';
+            } else {
+                b.classList.remove('active');
+                b.style.background = 'transparent';
+                b.style.color = 'var(--text-primary)';
+                b.style.borderColor = 'rgba(5,150,105,0.2)';
+            }
+        });
+    }
+
+    if (weatherBtns.length > 0) {
+        const currentMode = localStorage.getItem('weatherMode') || 'auto';
+        highlightPreset(currentMode);
+        
+        weatherBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const targetWeather = btn.dataset.weather;
-                
-                // Highlight active button
-                weatherBtns.forEach(b => {
-                    b.classList.remove('active');
-                    b.style.background = 'transparent';
-                    b.style.color = 'var(--text-primary)';
-                    b.style.borderColor = 'rgba(5,150,105,0.2)';
-                });
-                btn.classList.add('active');
-                btn.style.background = 'var(--accent)';
-                btn.style.color = '#ffffff';
-                btn.style.borderColor = 'var(--accent)';
-                
+                highlightPreset(targetWeather);
                 if (window.rainSimulator) {
                     window.rainSimulator.setMode(targetWeather);
                 }
             });
         });
+    }
+
+    // --- GLOBAL MAP SYNC TELEMETRY ENGINE ---
+    window.syncDashboardToRegion = function(region) {
+        // Update Grid Monitor Panel title and description
+        const titleEl = document.getElementById('grid-monitor-title');
+        const descEl = document.getElementById('grid-monitor-desc');
+        const syncInd = document.getElementById('grid-sync-indicator');
+        const syncName = document.getElementById('synced-region-name');
+        
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-bolt"></i> ${region.shortname} Grid Decarbonization Monitor`;
+        if (descEl) descEl.textContent = `Below is the real-time electrical grid intensity of ${region.shortname}. Grid intensity measures the grams of CO₂ emissions generated per kilowatt-hour of electricity produced (gCO₂e/kWh).`;
+        
+        if (syncInd && syncName) {
+            syncName.textContent = region.shortname;
+            syncInd.style.display = 'flex';
+        }
+        
+        // Update stats
+        const intensityVal = region.intensity.forecast;
+        const index = region.intensity.index;
+        
+        const dashIntensity = document.getElementById('dash-intensity');
+        if (dashIntensity) dashIntensity.textContent = intensityVal;
+        
+        const badge = document.getElementById('dash-intensity-badge');
+        if (badge) {
+            badge.textContent = index;
+            badge.className = 'intensity-badge ' + (index === 'very low' ? 'low' : (index === 'very high' ? 'high' : index));
+        }
+        
+        // Compute clean energy share % (wind + solar + nuclear + hydro + biomass)
+        let cleanShare = 0;
+        let leadingFuel = '';
+        let leadingPerc = 0;
+        
+        region.generationmix.forEach(item => {
+            if (['wind', 'solar', 'nuclear', 'hydro', 'biomass'].includes(item.fuel)) {
+                cleanShare += item.perc;
+            }
+            if (item.perc > leadingPerc) {
+                leadingPerc = item.perc;
+                leadingFuel = item.fuel;
+            }
+        });
+        
+        const dashCleanShare = document.getElementById('dash-clean-share');
+        if (dashCleanShare) dashCleanShare.textContent = cleanShare.toFixed(1) + '%';
+        
+        const dashLeadingFuel = document.getElementById('dash-leading-fuel');
+        if (dashLeadingFuel) dashLeadingFuel.textContent = leadingFuel;
+        
+        const dashLeadingPerc = document.getElementById('dash-leading-perc');
+        if (dashLeadingPerc) dashLeadingPerc.textContent = leadingPerc.toFixed(1) + '% of mix';
+        
+        // Render mix Chart
+        renderNationalMixChart(region.generationmix);
+        
+        // Switch tab to Dashboard
+        const dashTabBtn = document.querySelector('.tab-btn[data-tab="dashboard"]');
+        if (dashTabBtn) {
+            dashTabBtn.click();
+        }
+    };
+
+    function resetDashboardToGB() {
+        const titleEl = document.getElementById('grid-monitor-title');
+        const descEl = document.getElementById('grid-monitor-desc');
+        const syncInd = document.getElementById('grid-sync-indicator');
+        
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-bolt"></i> Great Britain Grid Decarbonization Monitor`;
+        if (descEl) descEl.textContent = `Below is the real-time electrical grid intensity of Great Britain. Grid intensity measures the grams of CO₂ emissions generated per kilowatt-hour of electricity produced (gCO₂e/kWh).`;
+        if (syncInd) syncInd.style.display = 'none';
+        
+        fetchNationalDashboard();
+    }
+
+    const resetGridSyncBtn = document.getElementById('reset-grid-sync-btn');
+    if (resetGridSyncBtn) {
+        resetGridSyncBtn.addEventListener('click', resetDashboardToGB);
     }
 
     // Trigger loads
@@ -869,7 +1118,10 @@
 
     // Periodically refresh dashboard and CO2 data feeds in background every 30 seconds
     setInterval(() => {
-        fetchNationalDashboard();
+        const syncInd = document.getElementById('grid-sync-indicator');
+        if (syncInd && syncInd.style.display !== 'flex') {
+            fetchNationalDashboard();
+        }
         fetchGlobalCO2();
     }, 30000);
 </script>
