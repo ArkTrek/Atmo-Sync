@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Current calculator values cache for audit history saves
+    let lastCalculation = { total: 0, energy: 0, transport: 0, diet: 0, waste: 0 };
+
     // --- SLIDER VALUE UPDATERS ---
     const sliders = document.querySelectorAll('.range-slider');
     sliders.forEach(slider => {
@@ -180,6 +183,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Recalculate and update the solutions sub-label math formulas live
         updateSolutionsSublabels();
+
+        // Save variables for history logs
+        lastCalculation = {
+            total: totalTons,
+            energy: energyTons,
+            transport: transportTons,
+            diet: dietTons,
+            waste: wasteTons
+        };
 
         // Spawn a puff of floating leaves
         spawnPuff();
@@ -440,6 +452,334 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Trigger initial calculation
+    // --- CARBON AUDIT HISTORY TRACKING ---
+    let historyChart = null;
+
+    function renderHistoryTrendChart(audits) {
+        const ctxHist = document.getElementById('history-trend-chart');
+        if (!ctxHist) return;
+        
+        // Sort chronologically by date
+        const sorted = [...audits].sort((a, b) => new Date(a.date) - new Date(b.date));
+        const labels = sorted.map(a => {
+            const d = new Date(a.date);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        });
+        const dataValues = sorted.map(a => a.total);
+        
+        if (historyChart) {
+            historyChart.destroy();
+        }
+        
+        historyChart = new Chart(ctxHist, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Carbon Footprint',
+                    data: dataValues,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(5, 150, 105, 0.06)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 2.5,
+                    pointRadius: 4.5,
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#3d4f45', font: { family: 'Inter', size: 9 } }
+                    },
+                    y: {
+                        min: 0,
+                        grid: { color: 'rgba(5, 150, 105, 0.05)' },
+                        ticks: { color: '#3d4f45', font: { family: 'Inter', size: 9 } }
+                    }
+                }
+            }
+        });
+    }
+
+    function loadAuditHistory() {
+        const auditsList = document.getElementById('saved-audits-list');
+        const historyPanel = document.getElementById('history-panel');
+        if (!auditsList) return;
+        
+        const stored = localStorage.getItem('atmosync_audits');
+        const audits = stored ? JSON.parse(stored) : [];
+        
+        if (audits.length === 0) {
+            if (historyPanel) historyPanel.style.display = 'none';
+            auditsList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; margin: auto; padding: 1rem;">No saved entries yet. Click "Save Progress" to log your current audit.</div>';
+            return;
+        }
+        
+        if (historyPanel) historyPanel.style.display = 'block';
+        
+        // Sort newest first
+        const listAudits = [...audits].sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        auditsList.innerHTML = '';
+        listAudits.forEach(a => {
+            const dateStr = new Date(a.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            auditsList.innerHTML += `
+                <div style="background: #ffffff; border: 1px solid rgba(5,150,105,0.08); padding: 0.65rem 0.8rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; box-shadow: var(--shadow-sm); margin-bottom: 0.25rem;">
+                    <div>
+                        <div style="font-weight: 700; color: var(--text-primary);">${a.total.toFixed(2)} Tons CO₂e</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">${dateStr}</div>
+                    </div>
+                    <div style="display: flex; gap: 0.4rem; font-size: 0.65rem; color: var(--text-secondary); background: var(--accent-sage); padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 600;">
+                        <span>E: ${a.breakdown.energy.toFixed(1)}</span>
+                        <span>T: ${a.breakdown.transport.toFixed(1)}</span>
+                        <span>D: ${a.breakdown.diet.toFixed(1)}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Re-draw chart (wrapping in a short timeout to let tab transition render correctly)
+        setTimeout(() => {
+            renderHistoryTrendChart(audits);
+        }, 100);
+    }
+
+    // Save current calculations to history
+    const saveBtn = document.getElementById('save-audit-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const stored = localStorage.getItem('atmosync_audits');
+            const audits = stored ? JSON.parse(stored) : [];
+            
+            const newAudit = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                total: lastCalculation.total,
+                breakdown: {
+                    energy: lastCalculation.energy,
+                    transport: lastCalculation.transport,
+                    diet: lastCalculation.diet,
+                    waste: lastCalculation.waste
+                }
+            };
+            
+            audits.push(newAudit);
+            localStorage.setItem('atmosync_audits', JSON.stringify(audits));
+            loadAuditHistory();
+            
+            // Visual feedback on save button
+            const originalHTML = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Saved!';
+            saveBtn.style.background = 'var(--accent-mint)';
+            setTimeout(() => {
+                saveBtn.innerHTML = originalHTML;
+                saveBtn.style.background = '';
+            }, 1200);
+        });
+    }
+
+    // Clear history logs
+    const clearBtn = document.getElementById('clear-history-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to delete all saved carbon audits?")) {
+                localStorage.removeItem('atmosync_audits');
+                loadAuditHistory();
+            }
+        });
+    }
+
+    // Export report printable page
+    const printBtn = document.getElementById('print-report-btn');
+    if (printBtn) {
+        printBtn.addEventListener('click', () => {
+            const printWindow = window.open('', '_blank');
+            const dateStr = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+            
+            const html = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Atmo Sync - Carbon Audit Certificate</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            background: #ffffff;
+                            color: #1c2d24;
+                            padding: 3rem;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 80vh;
+                        }
+                        .certificate {
+                            border: 8px double #059669;
+                            border-radius: 12px;
+                            padding: 3rem;
+                            max-width: 650px;
+                            width: 100%;
+                            text-align: center;
+                            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                            position: relative;
+                        }
+                        .certificate::before {
+                            content: '🌱';
+                            font-size: 3rem;
+                            display: block;
+                            margin-bottom: 1rem;
+                        }
+                        h1 {
+                            font-family: 'Plus Jakarta Sans', sans-serif;
+                            font-size: 2.2rem;
+                            color: #059669;
+                            margin: 0.5rem 0 1.5rem 0;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        }
+                        .subtitle {
+                            font-size: 1rem;
+                            color: #3d4f45;
+                            margin-bottom: 2rem;
+                            line-height: 1.5;
+                        }
+                        .score-box {
+                            background: #f0fdf4;
+                            border: 1px solid rgba(5,150,105,0.2);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            margin: 2rem 0;
+                            display: inline-block;
+                        }
+                        .score {
+                            font-family: 'Plus Jakarta Sans', sans-serif;
+                            font-size: 3.5rem;
+                            font-weight: 800;
+                            color: #059669;
+                            line-height: 1;
+                        }
+                        .unit {
+                            font-size: 0.85rem;
+                            color: #3d4f45;
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            margin-top: 0.5rem;
+                        }
+                        .breakdown-table {
+                            width: 100%;
+                            margin-top: 1.5rem;
+                            border-collapse: collapse;
+                            font-size: 0.9rem;
+                        }
+                        .breakdown-table th {
+                            border-bottom: 2px solid #059669;
+                            padding: 0.5rem;
+                            color: #3d4f45;
+                            font-weight: 700;
+                        }
+                        .breakdown-table td {
+                            border-bottom: 1px solid #e2e8f0;
+                            padding: 0.75rem 0.5rem;
+                            color: #1c2d24;
+                        }
+                        .footer {
+                            margin-top: 3rem;
+                            font-size: 0.8rem;
+                            color: #73857b;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            border-top: 1px dashed #e2e8f0;
+                            padding-top: 1.5rem;
+                        }
+                        @media print {
+                            body { padding: 0; }
+                            .certificate { border-color: #059669 !important; box-shadow: none !important; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="certificate">
+                        <h1>Carbon Footprint Audit</h1>
+                        <p class="subtitle">This official statement verifies the calculated annual greenhouse gas emissions for the audited household, measured in metric tons of carbon dioxide equivalent (Tons CO₂e).</p>
+                        
+                        <div class="score-box">
+                            <div class="score">${lastCalculation.total.toFixed(2)}</div>
+                            <div class="unit">Tons CO₂e / Year</div>
+                        </div>
+                        
+                        <table class="breakdown-table">
+                            <thead>
+                                <tr>
+                                    <th align="left">Emission Source</th>
+                                    <th align="right">Carbon Footprint</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td align="left">🏠 Home Energy</td>
+                                    <td align="right">${lastCalculation.energy.toFixed(2)} Tons</td>
+                                </tr>
+                                <tr>
+                                    <td align="left">🚗 Transport & Commuting</td>
+                                    <td align="right">${lastCalculation.transport.toFixed(2)} Tons</td>
+                                </tr>
+                                <tr>
+                                    <td align="left">🥗 Diet & Agriculture</td>
+                                    <td align="right">${lastCalculation.diet.toFixed(2)} Tons</td>
+                                </tr>
+                                <tr>
+                                    <td align="left">♻️ Waste & Disposal</td>
+                                    <td align="right">${lastCalculation.waste.toFixed(2)} Tons</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="footer">
+                            <div>Audit Date: ${dateStr}</div>
+                            <div>Verified by Atmo Sync</div>
+                        </div>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                        };
+                    </script>
+                </body>
+                </html>
+            `;
+            printWindow.document.open();
+            printWindow.document.write(html);
+            printWindow.document.close();
+        });
+    }
+
+    // Trigger initial calculation & history loads
     calculateFootprint();
+    loadAuditHistory();
+
+    // Redraw history trend chart if the tab is loaded or switched to
+    document.addEventListener('tabChanged', () => {
+        const stored = localStorage.getItem('atmosync_audits');
+        const audits = stored ? JSON.parse(stored) : [];
+        if (audits.length > 0) {
+            setTimeout(() => {
+                renderHistoryTrendChart(audits);
+            }, 150);
+        }
+    });
 });
