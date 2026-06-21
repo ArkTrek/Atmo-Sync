@@ -172,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (activeMarkers[regionId]) {
                             // Update existing marker style and popup content in place
                             const marker = activeMarkers[regionId];
+                            marker.regionData = region;
                             marker.setStyle({
                                 fillColor: color
                             });
@@ -188,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 fillOpacity: 0.65
                             }).addTo(map);
 
+                            marker.regionData = region;
                             marker.bindPopup(popupHTML);
 
                             // Add interaction listeners
@@ -198,6 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             marker.on('mouseout', function(e) {
                                 this.setStyle({ fillOpacity: 0.65, weight: 2, color: '#020617' });
+                            });
+
+                            marker.on('click', function(e) {
+                                if (window.syncDashboardToRegion) {
+                                    window.syncDashboardToRegion(this.regionData);
+                                }
                             });
 
                             activeMarkers[regionId] = marker;
