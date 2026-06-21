@@ -45,6 +45,11 @@
                     </button>
                 </li>
                 <li>
+                    <button class="tab-btn" data-tab="atmosphere">
+                        <i class="fa-solid fa-cloud-sun-rain"></i> Atmosphere
+                    </button>
+                </li>
+                <li>
                     <button class="tab-btn" data-tab="map-tab">
                         <i class="fa-solid fa-earth-americas"></i> Real-time Map
                     </button>
@@ -126,10 +131,14 @@
                 this.rainIntensity = 0;
                 this.speed = 0;
                 this.wind = 0;
+                this.fog = 0;
                 this.width = 0;
                 this.height = 0;
                 this.isFlashing = false;
                 this.activeMode = 'auto';
+                
+                this.audioVolFactor = 1.0;
+                this.audioSpeedFactor = 1.0;
                 
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
@@ -162,14 +171,20 @@
                         this.speed = 0;
                         this.wind = 0;
                         this.lightningChance = 0;
+                        this.fog = 0;
+                        this.audioVolFactor = 0.15;
+                        this.audioSpeedFactor = 0.8;
                         // Warm golden sunny glow
-                        this.overlay.style.backgroundColor = 'rgba(251, 243, 219, 0.15)';
+                        this.overlay.style.backgroundColor = 'rgba(251, 243, 219, 0.12)';
                         break;
                     case 'windy':
                         this.rainIntensity = 0;
                         this.speed = 0;
                         this.wind = -3.5;
                         this.lightningChance = 0;
+                        this.fog = 0;
+                        this.audioVolFactor = 1.0;
+                        this.audioSpeedFactor = 1.25;
                         // Fresh sky blue breeze tint
                         this.overlay.style.backgroundColor = 'rgba(219, 234, 254, 0.08)';
                         break;
@@ -178,6 +193,9 @@
                         this.speed = 4;
                         this.wind = -0.15;
                         this.lightningChance = 0;
+                        this.fog = 45;
+                        this.audioVolFactor = 0.3;
+                        this.audioSpeedFactor = 0.9;
                         // Misty white overlay with soft blur
                         this.overlay.style.backgroundColor = 'rgba(241, 245, 249, 0.42)';
                         this.overlay.style.backdropFilter = 'blur(2.5px)';
@@ -187,16 +205,24 @@
                         this.speed = 22;
                         this.wind = -3;
                         this.lightningChance = 0;
-                        this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.35)';
+                        this.fog = 20;
+                        this.audioVolFactor = 0.75;
+                        this.audioSpeedFactor = 1.05;
+                        this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.32)';
                         break;
                     case 'storm':
                         this.rainIntensity = 500;
                         this.speed = 28;
                         this.wind = -6;
                         this.lightningChance = 0.008;
-                        this.overlay.style.backgroundColor = 'rgba(15, 23, 42, 0.65)';
+                        this.fog = 35;
+                        this.audioVolFactor = 1.25;
+                        this.audioSpeedFactor = 1.35;
+                        this.overlay.style.backgroundColor = 'rgba(15, 23, 42, 0.62)';
                         break;
                 }
+                this.updateAudioParameters();
+                this.syncSliders();
             }
             
             setIntensity(footprint) {
@@ -210,32 +236,113 @@
                     this.speed = 0;
                     this.wind = 0;
                     this.lightningChance = 0;
+                    this.fog = 0;
+                    this.audioVolFactor = 0.15;
+                    this.audioSpeedFactor = 0.8;
                     this.overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
                 } else if (footprint < 7.0) {
                     this.rainIntensity = 40;
                     this.speed = 10;
                     this.wind = -0.5;
                     this.lightningChance = 0;
+                    this.fog = 10;
+                    this.audioVolFactor = 0.45;
+                    this.audioSpeedFactor = 0.95;
                     this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.06)';
                 } else if (footprint < 12.0) {
                     this.rainIntensity = 120;
                     this.speed = 16;
                     this.wind = -1.5;
                     this.lightningChance = 0;
+                    this.fog = 20;
+                    this.audioVolFactor = 0.75;
+                    this.audioSpeedFactor = 1.05;
                     this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.18)';
                 } else if (footprint < 20.0) {
                     this.rainIntensity = 280;
                     this.speed = 22;
                     this.wind = -3;
                     this.lightningChance = 0.002;
+                    this.fog = 30;
+                    this.audioVolFactor = 1.0;
+                    this.audioSpeedFactor = 1.2;
                     this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.35)';
                 } else {
                     this.rainIntensity = 480;
                     this.speed = 28;
                     this.wind = -5;
                     this.lightningChance = 0.008;
+                    this.fog = 45;
+                    this.audioVolFactor = 1.3;
+                    this.audioSpeedFactor = 1.35;
                     this.overlay.style.backgroundColor = 'rgba(15, 23, 42, 0.58)';
                 }
+                this.updateAudioParameters();
+                this.syncSliders();
+            }
+
+            setCustomParameters(rain, speed, wind, lightning, fog) {
+                this.activeMode = 'custom';
+                localStorage.setItem('weatherMode', 'custom');
+                
+                this.rainIntensity = parseFloat(rain);
+                this.speed = parseFloat(speed);
+                this.wind = parseFloat(wind);
+                this.lightningChance = parseFloat(lightning);
+                this.fog = parseFloat(fog);
+                
+                // update fog and color overlay
+                if (this.fog > 0) {
+                    this.overlay.style.backdropFilter = `blur(${this.fog * 0.05}px)`;
+                    this.overlay.style.backgroundColor = `rgba(15, 23, 42, ${Math.max(0.1, this.fog * 0.0065)})`;
+                } else {
+                    this.overlay.style.backdropFilter = 'none';
+                    if (this.rainIntensity > 0) {
+                        this.overlay.style.backgroundColor = `rgba(28, 45, 36, ${Math.min(0.5, this.rainIntensity * 0.0012)})`;
+                    } else {
+                        this.overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+                    }
+                }
+                
+                // Dynamically modulate audio factors based on custom controls
+                this.audioSpeedFactor = 0.8 + (Math.abs(this.wind) * 0.08);
+                this.audioVolFactor = 0.15 + (Math.abs(this.wind) * 0.1) + (this.rainIntensity * 0.002) + (this.fog * 0.004);
+                this.updateAudioParameters();
+            }
+
+            updateAudioParameters() {
+                const audio = document.getElementById('bg-wind-audio');
+                if (!audio) return;
+                
+                const rawVolume = parseFloat(localStorage.getItem('ambientVolume') || '0.05');
+                const soundEnabled = localStorage.getItem('ambientSoundEnabled') !== 'false';
+                
+                audio.playbackRate = this.audioSpeedFactor || 1.0;
+                if (!soundEnabled) {
+                    audio.volume = 0;
+                } else {
+                    audio.volume = Math.min(1.0, rawVolume * (this.audioVolFactor || 1.0));
+                }
+            }
+
+            syncSliders() {
+                const rSlider = document.getElementById('sim-rain-intensity');
+                const sSlider = document.getElementById('sim-rain-speed');
+                const wSlider = document.getElementById('sim-wind-speed');
+                const fSlider = document.getElementById('sim-fog-density');
+                const lSlider = document.getElementById('sim-lightning-chance');
+                
+                const rVal = document.getElementById('sim-rain-intensity-val');
+                const sVal = document.getElementById('sim-rain-speed-val');
+                const wVal = document.getElementById('sim-wind-speed-val');
+                const fVal = document.getElementById('sim-fog-density-val');
+                const lVal = document.getElementById('sim-lightning-chance-val');
+
+                if (rSlider) { rSlider.value = this.rainIntensity; if (rVal) rVal.textContent = Math.round(this.rainIntensity); }
+                if (sSlider) { sSlider.value = this.speed; if (sVal) sVal.textContent = Math.round(this.speed) + ' px/s'; }
+                if (wSlider) { wSlider.value = this.wind; if (wVal) wVal.textContent = parseFloat(this.wind).toFixed(1); }
+                if (fSlider) { fSlider.value = this.fog; if (fVal) fVal.textContent = Math.round(this.fog) + '%'; }
+                if (lSlider) { lSlider.value = Math.round(this.lightningChance * 5000); if (lVal) lVal.textContent = (this.lightningChance * 100).toFixed(2) + '%'; }
             }
             
             animate() {
@@ -291,6 +398,7 @@
             
             triggerLightning() {
                 this.isFlashing = true;
+                this.playThunderSound();
                 setTimeout(() => {
                     this.isFlashing = false;
                     setTimeout(() => {
@@ -302,6 +410,57 @@
                         }
                     }, 60);
                 }, 100);
+            }
+
+            playThunderSound() {
+                const soundEnabled = localStorage.getItem('ambientSoundEnabled') !== 'false';
+                const volume = parseFloat(localStorage.getItem('ambientVolume') || '0.05');
+                if (!soundEnabled || volume === 0) return;
+
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContext) return;
+                    const ctx = new AudioContext();
+                    
+                    // Create noise buffer
+                    const bufferSize = ctx.sampleRate * 2.5; 
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    
+                    // Generate brown noise
+                    let lastOut = 0.0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        data[i] = (lastOut + (0.02 * white)) / 1.02;
+                        lastOut = data[i];
+                        data[i] *= 3.5; 
+                    }
+                    
+                    const noiseNode = ctx.createBufferSource();
+                    noiseNode.buffer = buffer;
+                    
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(280, ctx.currentTime);
+                    filter.Q.setValueAtTime(1, ctx.currentTime);
+                    filter.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 2.0);
+                    
+                    const gain = ctx.createGain();
+                    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(volume * 1.5, ctx.currentTime + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(volume * 0.4, ctx.currentTime + 0.3);
+                    gain.gain.linearRampToValueAtTime(volume * 0.1, ctx.currentTime + 1.2);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+                    
+                    noiseNode.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(ctx.destination);
+                    
+                    noiseNode.start(0);
+                    noiseNode.stop(ctx.currentTime + 2.5);
+                } catch (e) {
+                    console.warn("Thunder synth failed: ", e);
+                }
             }
         }
 
@@ -436,11 +595,11 @@
                         isPlaying = false;
                         ambientEnabled = false;
                         localStorage.setItem('ambientSoundEnabled', 'false');
+                        if (window.rainSimulator) window.rainSimulator.updateAudioParameters();
                     } else {
                         // If volume was set to 0, reset to default 0.05 to make it audible
                         if (ambientVolume === 0) {
                             ambientVolume = 0.05;
-                            audio.volume = ambientVolume;
                             volumeSlider.value = ambientVolume;
                             localStorage.setItem('ambientVolume', '0.05');
                         }
@@ -449,6 +608,7 @@
                             isPlaying = true;
                             ambientEnabled = true;
                             localStorage.setItem('ambientSoundEnabled', 'true');
+                            if (window.rainSimulator) window.rainSimulator.updateAudioParameters();
                             updateVisuals();
                         }).catch(err => {
                             console.log("Play blocked by browser policy. Interaction needed.");
@@ -459,7 +619,6 @@
                 
                 function handleVolumeChange(e) {
                     ambientVolume = parseFloat(volumeSlider.value);
-                    audio.volume = ambientVolume;
                     localStorage.setItem('ambientVolume', ambientVolume);
                     
                     if (ambientVolume === 0) {
@@ -469,6 +628,7 @@
                         }
                         ambientEnabled = false;
                         localStorage.setItem('ambientSoundEnabled', 'false');
+                        if (window.rainSimulator) window.rainSimulator.updateAudioParameters();
                     } else {
                         ambientEnabled = true;
                         localStorage.setItem('ambientSoundEnabled', 'true');
@@ -476,8 +636,11 @@
                         if (!isPlaying) {
                             audio.play().then(() => {
                                 isPlaying = true;
+                                if (window.rainSimulator) window.rainSimulator.updateAudioParameters();
                                 updateVisuals();
                             }).catch(() => {});
+                        } else {
+                            if (window.rainSimulator) window.rainSimulator.updateAudioParameters();
                         }
                     }
                     updateVisuals();
