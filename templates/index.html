@@ -1,0 +1,877 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<!-- TAB 1: DASHBOARD (LANDING SECTION) -->
+<div id="dashboard" class="tab-panel active">
+    <!-- Welcome landing section -->
+    <div class="glass-card" style="background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(250, 248, 245, 0.75)); border-color: rgba(5, 150, 105, 0.15); box-shadow: var(--shadow-lg); animation: fadeInUp 0.5s ease;">
+        <h1 style="font-size: 2.3rem; font-weight: 800; margin-bottom: 0.75rem; background: linear-gradient(135deg, var(--accent), var(--accent-mint)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Welcome to Atmo Sync
+        </h1>
+        <p style="font-size: 1.05rem; color: var(--text-secondary); margin-bottom: 1.5rem; max-width: 900px; line-height: 1.6;">
+            A simple, friendly, and data-driven platform designed to quantify your carbon footprint, visualize power grids around the world, and discover math-backed solutions to help our planet stay healthy and green.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1.5rem; border-top: 1px solid rgba(5,150,105,0.08); padding-top: 1.5rem;">
+            <div style="display: flex; gap: 0.75rem;">
+                <i class="fa-solid fa-chart-simple" style="color: var(--accent); font-size: 1.25rem; margin-top: 0.25rem;"></i>
+                <div>
+                    <h4 style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">1. Monitor Decarbonization</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Watch live renewable energy outputs and grid carbon intensity shifts on the dashboard.</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 0.75rem;">
+                <i class="fa-solid fa-map-location-dot" style="color: var(--accent); font-size: 1.25rem; margin-top: 0.25rem;"></i>
+                <div>
+                    <h4 style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">2. Explore Global Grids</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Interact with coordinates worldwide to view local grid carbon metrics and fuel generation mixes.</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 0.75rem;">
+                <i class="fa-solid fa-calculator" style="color: var(--accent); font-size: 1.25rem; margin-top: 0.25rem;"></i>
+                <div>
+                    <h4 style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">3. Calculate Personal Footprint</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Use standard IPCC conversion models to audit your energy, transport, diet, and waste impact.</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 0.75rem;">
+                <i class="fa-solid fa-clipboard-check" style="color: var(--accent); font-size: 1.25rem; margin-top: 0.25rem;"></i>
+                <div>
+                    <h4 style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">4. Commit to Solutions</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Audit the math behind efficiency upgrades and check items to compute simulated annual savings.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Atmospheric & Weather Simulator Panel -->
+    <div class="glass-card" style="margin-bottom: 2rem; background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(240,248,255,0.65)); border-color: rgba(5, 150, 105, 0.15);">
+        <h3 class="glass-title"><i class="fa-solid fa-cloud-sun-rain"></i> Atmospheric & Weather Simulator</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.9rem; line-height: 1.5;">
+            Atmo Sync translates greenhouse gas concentrations into physical weather simulations. Toggle between <strong>Auto Sync</strong> (which binds the background weather to your personal carbon calculator footprint) or select a manual climate preset.
+        </p>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">Preset Climates:</span>
+            
+            <button class="tab-btn weather-preset-btn" data-weather="auto" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                🔄 Auto Sync
+            </button>
+            <button class="tab-btn weather-preset-btn" data-weather="clear" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                ☀️ Clear & Sunny
+            </button>
+            <button class="tab-btn weather-preset-btn" data-weather="windy" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                🍃 Windy Breeze
+            </button>
+            <button class="tab-btn weather-preset-btn" data-weather="foggy" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                🌫️ Misty Fog
+            </button>
+            <button class="tab-btn weather-preset-btn" data-weather="rain" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                🌧️ Heavy Rain
+            </button>
+            <button class="tab-btn weather-preset-btn" data-weather="storm" style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(5,150,105,0.2); background: transparent; cursor: pointer; transition: var(--transition);">
+                ⛈️ Severe Storm
+            </button>
+        </div>
+    </div>
+
+    <!-- Active Grid Stats Monitor -->
+    <div class="glass-card">
+        <h2 class="glass-title"><i class="fa-solid fa-bolt"></i> National Electricity Grid Decarbonization Monitor</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">
+            Below is the real-time electrical grid intensity of Great Britain. Grid intensity measures the grams of CO₂ emissions generated per kilowatt-hour of electricity produced (gCO₂e/kWh).
+        </p>
+        
+        <!-- Live Stat Counters -->
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+            <div class="stat-box">
+                <span class="form-label" style="margin-bottom: 0;">Grid Carbon Intensity</span>
+                <div class="stat-value" id="dash-intensity">-</div>
+                <span class="stat-unit">gCO₂e / kWh</span>
+                <span class="intensity-badge" id="dash-intensity-badge">-</span>
+            </div>
+            
+            <div class="stat-box">
+                <span class="form-label" style="margin-bottom: 0;">Clean Energy Share</span>
+                <div class="stat-value" id="dash-clean-share">-</div>
+                <span class="stat-unit">Wind, Solar, Nuclear, Hydro, Biomass</span>
+            </div>
+            
+            <div class="stat-box">
+                <span class="form-label" style="margin-bottom: 0;">Primary Power Source</span>
+                <div class="stat-value" id="dash-leading-fuel" style="font-size: 2.2rem; text-transform: capitalize;">-</div>
+                <span class="stat-unit" id="dash-leading-perc">-</span>
+            </div>
+
+            <div class="stat-box">
+                <span class="form-label" style="margin-bottom: 0;">Global Atmospheric CO₂</span>
+                <div class="stat-value" id="dash-co2">-</div>
+                <span class="stat-unit" id="dash-co2-meta">Loading NOAA Reading...</span>
+            </div>
+        </div>
+        
+        <!-- Grid Chart and Explanation -->
+        <div class="dashboard-grid">
+            <div class="stat-box" style="align-items: stretch; padding: 1.5rem;">
+                <h3 style="font-size: 1.15rem; color: var(--accent); margin-bottom: 1rem; text-align: center;">Live Power Generation Mix</h3>
+                <div class="chart-container">
+                    <canvas id="national-mix-chart"></canvas>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; justify-content: center; gap: 1.25rem; padding: 1rem;">
+                <h3 style="font-size: 1.25rem; color: var(--text-primary);">Why Grid Carbon Intensity Matters</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+                    Every time you charge your laptop, boil a kettle, or run a washing machine, your carbon emissions depend directly on the active grid generation mix.
+                </p>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+                    When renewable sources like <strong>wind and solar</strong> are producing high outputs, grid intensity drops significantly. If fossil fuels like <strong>gas and coal</strong> dominate, the grid becomes highly carbon-intensive. 
+                </p>
+                <div style="background: rgba(5, 150, 105, 0.04); border: 1px dashed var(--glass-border); border-radius: 8px; padding: 1rem; font-size: 0.85rem; color: var(--text-primary);">
+                    💡 <strong>Smart Tip:</strong> Shift energy-intensive tasks (like running a dishwasher or charging an EV) to low-intensity periods to reduce your Scope 2 emissions without using less energy.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Climate News Section -->
+    <div class="glass-card">
+        <h3 class="glass-title"><i class="fa-solid fa-square-rss"></i> Real-time Environmental News Feed</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+            Stay informed with the latest global environmental updates and carbon footprint announcements.
+        </p>
+        
+        <div id="news-feed-loader" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 1.5rem; color: var(--accent); margin-bottom: 0.5rem;"></i>
+            <p style="font-size: 0.85rem;">Retrieving Climate News Feed...</p>
+        </div>
+        
+        <div id="news-feed-content" class="news-feed-container" style="display: none;">
+            <!-- Filled by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: MAP -->
+<div id="map-tab" class="tab-panel">
+    <div class="glass-card">
+        <h2 class="glass-title"><i class="fa-solid fa-earth-americas"></i> Global Grid Carbon Intensity Map</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+            Explore grid carbon intensity and electricity generation mixes in Great Britain and across the most populous parts of the world. Click on DNO regions or national cities to compare localized carbon mixes.
+        </p>
+        
+        <div class="map-control-panel">
+            <!-- Map Legend and Info -->
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div class="map-legend">
+                    <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 1rem; border-bottom: 1px solid rgba(5,150,105,0.08); padding-bottom: 0.5rem;">Intensity Rating</h3>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #059669; box-shadow: 0 0 8px rgba(5,150,105,0.3);"></div>
+                        <span>Low / Very Low (&lt; 100 gCO₂/kWh)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #d97706; box-shadow: 0 0 8px rgba(217,119,6,0.3);"></div>
+                        <span>Moderate (100 - 200 gCO₂/kWh)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #dc2626; box-shadow: 0 0 8px rgba(220,38,38,0.3);"></div>
+                        <span>High / Very High (&gt; 200 gCO₂/kWh)</span>
+                    </div>
+                </div>
+                
+                <div class="map-legend" style="flex: 1;">
+                    <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 0.75rem;">Global Infrastructure</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.75rem;">
+                        <strong>France</strong> has clean power due to heavy nuclear baseloads. <strong>Brazil</strong> excels with robust hydro networks.
+                    </p>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+                        Conversely, populous hubs in **India** and **China** are highly carbon-intensive due to a heavy historical reliance on coal combustion to meet rapid industrial and municipal demand.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Map Container -->
+            <div style="position: relative;">
+                <div id="map-loader" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--glass-bg); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.5rem; color: var(--accent); margin-bottom: 1rem;"></i>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">Loading Real-Time Map Nodes...</p>
+                </div>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 3: CALCULATOR -->
+<div id="calculator" class="tab-panel">
+    <div class="glass-card">
+        <h2 class="glass-title"><i class="fa-solid fa-calculator"></i> Personal Carbon Footprint Calculator</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">
+            Assess your personal annual emissions. Enter your average household consumption, transit habits, and lifestyle choices below to compute your footprint in metric tons of CO₂ equivalent (Tons CO₂e).
+        </p>
+        
+        <div class="calc-grid">
+            <!-- Left Side: Form -->
+            <form id="carbon-calculator-form">
+                <!-- Section: Home Energy -->
+                <div class="calc-section-title">
+                    <i class="fa-solid fa-house-chimney"></i> 1. Home Energy (Monthly)
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="energy-elec">Electricity Usage (kWh)</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="energy-elec" class="range-slider" min="0" max="1000" step="10" value="280">
+                        <span class="slider-val" id="energy-elec-val">280</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="energy-gas">Natural Gas Usage (kWh)</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="energy-gas" class="range-slider" min="0" max="2500" step="50" value="600">
+                        <span class="slider-val" id="energy-gas-val">600</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="energy-lpg">LPG / Bottled Gas (kg)</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="energy-lpg" class="range-slider" min="0" max="100" step="2" value="0">
+                        <span class="slider-val" id="energy-lpg-val">0</span>
+                    </div>
+                </div>
+
+                <!-- Section: Transportation -->
+                <div class="calc-section-title" style="margin-top: 2rem;">
+                    <i class="fa-solid fa-car"></i> 2. Transportation & Travel
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="trans-car">Personal Car Distance (Annual km)</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="trans-car" class="range-slider" min="0" max="30000" step="250" value="8000">
+                        <span class="slider-val" id="trans-car-val">8000</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="trans-car-type">Car Engine Type</label>
+                    <select id="trans-car-type" class="form-input">
+                        <option value="petrol">Petrol / Gasoline</option>
+                        <option value="diesel">Diesel</option>
+                        <option value="hybrid" selected>Hybrid</option>
+                        <option value="ev">Electric Vehicle (EV)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="trans-public">Public Transport (Hours/Week)</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="trans-public" class="range-slider" min="0" max="40" step="1" value="4">
+                        <span class="slider-val" id="trans-public-val">4</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="trans-flights">Air Travel (Total Flight Hours/Year)</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="trans-flights" class="range-slider" min="0" max="100" step="1" value="10">
+                        <span class="slider-val" id="trans-flights-val">10</span>
+                    </div>
+                </div>
+
+                <!-- Section: Diet -->
+                <div class="calc-section-title" style="margin-top: 2rem;">
+                    <i class="fa-solid fa-utensils"></i> 3. Dietary Choices
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="diet-type">Average Diet Profile</label>
+                    <select id="diet-type" class="form-input">
+                        <option value="meat">Meat Lover (Frequent beef/pork)</option>
+                        <option value="average" selected>Average (Moderate meats & poultry)</option>
+                        <option value="vegetarian">Vegetarian (No meat, eggs/dairy allowed)</option>
+                        <option value="vegan">Vegan (Strictly plant-based)</option>
+                    </select>
+                </div>
+
+                <!-- Section: Waste -->
+                <div class="calc-section-title" style="margin-top: 2rem;">
+                    <i class="fa-solid fa-trash-can"></i> 4. Waste & Recycling
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="waste-trash">Household Waste Generated (kg/Week)</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="waste-trash" class="range-slider" min="0" max="50" step="1" value="15">
+                        <span class="slider-val" id="waste-trash-val">15</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="waste-recycling">Recycling Rate (%)</label>
+                    <div class="range-slider-container">
+                        <input type="range" id="waste-recycling" class="range-slider" min="0" max="100" step="5" value="40">
+                        <span class="slider-val" id="waste-recycling-val">40</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="margin-top: 1rem;">
+                    Recalculate Footprint
+                </button>
+            </form>
+
+            <!-- Right Side: Results Display -->
+            <div class="results-summary">
+                <h3 style="font-size: 1.25rem; color: var(--text-primary); margin-bottom: 0.5rem; text-align: center;">Your Carbon Footprint</h3>
+                
+                <!-- Circular Total display -->
+                <div class="circular-gauge-outer" id="gauge-container">
+                    <span id="result-total-val" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1;">0.00</span>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Tons CO₂e / Yr</span>
+                </div>
+
+                <!-- Progress Comparison -->
+                <div style="width: 100%; text-align: center; margin-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary);">
+                        <span>Target Limit: 2.0 T</span>
+                        <span>Global Avg: 4.5 T</span>
+                        <span>Western Avg: 10.0+ T</span>
+                    </div>
+                    <div class="comparison-bar">
+                        <div class="comparison-fill" id="comparison-fill"></div>
+                    </div>
+                    <div id="comparison-label" style="font-size: 0.85rem; font-weight: 700;">-</div>
+                </div>
+
+                <!-- Breakdown Chart -->
+                <div style="width: 100%; height: 200px; margin-top: 2rem;">
+                    <canvas id="breakdown-chart"></canvas>
+                </div>
+                
+                <!-- Dynamic Suggestions box based on highest contributor -->
+                <div id="dynamic-reco-box" style="width: 100%; margin-top: 1.5rem; background: rgba(255, 255, 255, 0.4); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.25rem;">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 4: SOLUTIONS (MATH ENGINE SHOWCASE) -->
+<div id="solutions" class="tab-panel">
+    <!-- Science Documentation & Mathematical Principles -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 class="glass-title"><i class="fa-solid fa-graduation-cap"></i> The Science & Math of Carbon Savings</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.25rem; line-height: 1.6;">
+            Reducing carbon footprints is not abstract; it is governed by direct thermodynamics and chemical conversion rates. Below are the physical principles and math formulas that Atmo Sync uses to calculate your savings when you select actions below.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+            <div class="science-block">
+                <strong style="color: var(--text-primary); font-size: 1rem;"><i class="fa-solid fa-fire"></i> Heat Pump Efficiency (COP)</strong>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem; line-height: 1.5;">
+                    Conventional gas boilers burn fossil fuel with ~90% efficiency. Heat pumps utilize a refrigeration cycle to *move* environmental heat, achieving a Coefficient of Performance (COP) of **3.0** (300% thermal efficiency).
+                </p>
+                <div class="math-formula-box">
+                    Savings = Gas_Usage × 0.183 - (Gas_Usage / 3.0) × 0.207
+                </div>
+            </div>
+            
+            <div class="science-block">
+                <strong style="color: var(--text-primary); font-size: 1rem;"><i class="fa-solid fa-car-side"></i> Vehicle Thermodynamic Losses</strong>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem; line-height: 1.5;">
+                    Internal combustion engines (ICE) waste ~80% of fuel energy as heat. Electric vehicles convert over **85%** of battery energy to wheel motion, drastically reducing emissions even when charging from local grids.
+                </p>
+                <div class="math-formula-box">
+                    Savings = (Distance × 0.17 - Distance × 0.04) / 1000
+                </div>
+            </div>
+            
+            <div class="science-block">
+                <strong style="color: var(--text-primary); font-size: 1rem;"><i class="fa-solid fa-cow"></i> Enteric Methane Fermentation</strong>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem; line-height: 1.5;">
+                    Livestock farming requires high volumes of grain inputs and directly produces methane (CH₄) via enteric fermentation. Eliminating beef and lamb cuts agricultural footprints by up to **66%**.
+                </p>
+                <div class="math-formula-box">
+                    Savings = Diet_Baseline_Tons - Diet_Vegan_Tons
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 1: Interactive Counter -->
+    <div class="glass-card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; border-color: var(--accent-mint); background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(250, 248, 245, 0.7));">
+        <div>
+            <h2 style="font-size: 1.6rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-circle-check" style="color: var(--accent);"></i> Interactive Reduction Checklist</h2>
+            <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                Select actions below. The mathematical savings engine will calculate the cumulative emission drop in real-time.
+            </p>
+        </div>
+        
+        <div style="background: #ffffff; border: 1px solid var(--accent); padding: 1rem 1.75rem; border-radius: 12px; min-width: 220px; text-align: center; box-shadow: var(--shadow-sm);">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); font-weight: 700;">Simulated Savings</span>
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.75rem; font-weight: 800; color: var(--accent); margin-top: 0.25rem;">
+                <span id="savings-total-val">0.00</span> <span style="font-size: 1rem; font-weight: 600; color: var(--text-secondary);">Tons CO₂e</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Solutions Grid -->
+    <div class="solutions-grid">
+        <!-- Card 1: Home Energy -->
+        <div class="sol-card">
+            <div class="sol-icon"><i class="fa-solid fa-house-chimney-crack"></i></div>
+            <h3 class="sol-title">Home Energy Upgrades</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
+                Adjust local thermostat levels, lighting, and insulation to reduce electrical and combustion loads.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.15" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Upgrade to 100% LED Bulbs</span>
+                        <br><span class="sol-savings">Saves 0.15 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.35" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Install Smart Thermostat</span>
+                        <br><span class="sol-savings">Saves 0.35 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="1.80" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Convert Gas Boiler to Heat Pump</span>
+                        <br><span class="sol-savings">Saves 1.80 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.40" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Install Double Glazing Windows</span>
+                        <br><span class="sol-savings">Saves 0.40 Tons CO₂e</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Card 2: Transit -->
+        <div class="sol-card">
+            <div class="sol-icon"><i class="fa-solid fa-bicycle"></i></div>
+            <h3 class="sol-title">Transportation Shifts</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
+                Decarbonize your commute by opting for low-carbon travel alternatives.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.75" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Walk / Bike Commutes (&lt;5km)</span>
+                        <br><span class="sol-savings">Saves 0.75 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="1.50" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Switch from Petrol/Gas Car to EV</span>
+                        <br><span class="sol-savings">Saves 1.50 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.25" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Avoid 1 Short-Haul Flight / Year</span>
+                        <br><span class="sol-savings">Saves 0.25 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.08" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Maintain Correct Car Tire Pressure</span>
+                        <br><span class="sol-savings">Saves 0.08 Tons CO₂e</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Card 3: Diet -->
+        <div class="sol-card">
+            <div class="sol-icon"><i class="fa-solid fa-carrot"></i></div>
+            <h3 class="sol-title">Diet & Food Habits</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
+                Transition to plant-based items to drastically reduce enteric methane production.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="1.00" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Transition to Plant-Based Diet</span>
+                        <br><span class="sol-savings">Saves 1.00 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.20" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Adopt 1 Meat-Free Day a Week</span>
+                        <br><span class="sol-savings">Saves 0.20 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.15" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Eliminate Direct Food Waste</span>
+                        <br><span class="sol-savings">Saves 0.15 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.10" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Purchase Local & Seasonal Food</span>
+                        <br><span class="sol-savings">Saves 0.10 Tons CO₂e</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Card 4: Lifestyle -->
+        <div class="sol-card">
+            <div class="sol-icon"><i class="fa-solid fa-recycle"></i></div>
+            <h3 class="sol-title">Waste & Recycling</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
+                Sort trash, compost organics, and purchase secondhand to reduce supply-chain emissions.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.12" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Compost Direct Organic Waste</span>
+                        <br><span class="sol-savings">Saves 0.12 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.08" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Eliminate Single-Use Plastics</span>
+                        <br><span class="sol-savings">Saves 0.08 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.15" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Setup Household Waste Sorting</span>
+                        <br><span class="sol-savings">Saves 0.15 Tons CO₂e</span>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                    <input type="checkbox" class="sol-checkbox" data-savings="0.18" style="margin-top: 0.2rem; accent-color: var(--accent);">
+                    <div>
+                        <span>Source Clothing Secondhand</span>
+                        <br><span class="sol-savings">Saves 0.18 Tons CO₂e</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 5: LEARN (KIDS & FAMILY EDITION) -->
+<div id="learn" class="tab-panel">
+    <div class="glass-card">
+        <h2 class="glass-title"><i class="fa-solid fa-graduation-cap"></i> Earth’s Climate for Kids & Grownups</h2>
+        
+        <div class="kids-card">
+            <h3 style="font-size: 1.25rem; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                🌱 What is a "Carbon Footprint"?
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+                Imagine walking across a clean green lawn with muddy boots. You leave dark mud marks wherever you step! 
+                A <strong>carbon footprint</strong> is like an invisible dirty mark we leave on the Earth. Every time we turn on a light, ride in a gasoline car, or buy a new plastic toy, we use energy and leave behind a small invisible dirty footprint in the air. 
+                We want to learn how to walk softly so our dirty footprints disappear!
+            </p>
+        </div>
+        
+        <div class="kids-card" style="background: #f0fdf4;">
+            <h3 style="font-size: 1.25rem; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                ☁️ The Earth's Cozy "Blanket" (Greenhouse Gases)
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+                Our Earth is wrapped in a cozy blanket of air called gases (like carbon dioxide). This blanket traps the sun's warmth to keep us nice and warm. 
+                But when we burn coal, gas, and oil, we add extra thread to the blanket, making it **too thick**! 
+                When the blanket gets too thick, the Earth traps too much heat and gets a fever. We need to stop making the blanket thicker so our polar bears, plants, and oceans stay safe and cool!
+            </p>
+        </div>
+        
+        <div class="glass-card" style="background: rgba(255, 255, 255, 0.45); margin-bottom: 0; border-color: rgba(5, 150, 105, 0.08);">
+            <h3 class="calc-section-title" style="margin-top: 0; font-size: 1.2rem; border-color: rgba(5,150,105,0.15);">Where Does the Smoke Come From? (Scopes)</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                We divide our dirty footprints into three groups depending on where the energy smoke is created:
+            </p>
+            
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                <li style="background: #ffffff; padding: 1rem; border-radius: 12px; border: 1px solid rgba(5,150,105,0.06); box-shadow: var(--shadow-sm);">
+                    <strong>💨 Group 1 (Direct Smoke):</strong> Smoke you make yourself. For example, the gas burning inside your home boiler to make hot water, or the petrol burning inside your family car.
+                </li>
+                <li style="background: #ffffff; padding: 1rem; border-radius: 12px; border: 1px solid rgba(5,150,105,0.06); box-shadow: var(--shadow-sm);">
+                    <strong>🔌 Group 2 (Power Smoke):</strong> Smoke made when you buy power. When you turn on a light switch, your light doesn't make smoke, but a big power station far away does!
+                </li>
+                <li style="background: #ffffff; padding: 1rem; border-radius: 12px; border: 1px solid rgba(5,150,105,0.06); box-shadow: var(--shadow-sm);">
+                    <strong>🧸 Group 3 (Toy & Food Smoke):</strong> Smoke made by others to make the things you buy. Like a factory far away making a new plastic toy, or a cargo ship burning fuel to carry bananas across the ocean.
+                </li>
+            </ul>
+            
+            <h3 class="calc-section-title" style="font-size: 1.2rem; margin-top: 2rem; border-color: rgba(5,150,105,0.15);">How Can Kids and Families Help?</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">
+                It’s easy to help our Earth feel better! Here are simple steps you can take:
+            </p>
+            <ul style="padding-left: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.4rem; line-height: 1.5;">
+                <li><strong>Turn it off:</strong> Turn off lights and TV screens when you walk out of a room.</li>
+                <li><strong>Green rides:</strong> Walk, ride your bicycle, or take public transit to school instead of driving.</li>
+                <li><strong>Yummy plants:</strong> Eat more delicious veggies and fruits (and eat less beef and lamb).</li>
+                <li><strong>Recycle:</strong> Throw bottles, cans, and paper into the recycling bin instead of the trash!</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- FETCH NATIONAL DASHBOARD DATA ---
+    function fetchNationalDashboard() {
+        fetch('/api/grid-data')
+            .then(res => {
+                if (!res.ok) throw new Error("Dashboard network error");
+                return res.json();
+            })
+            .then(data => {
+                const intensityVal = data.intensity.actual || data.intensity.forecast;
+                const index = data.intensity.index;
+                
+                // Update stats
+                document.getElementById('dash-intensity').textContent = intensityVal;
+                
+                const badge = document.getElementById('dash-intensity-badge');
+                badge.textContent = index;
+                badge.className = 'intensity-badge ' + (index === 'very low' ? 'low' : (index === 'very high' ? 'high' : index));
+                
+                // Compute clean energy share % (wind + solar + nuclear + hydro + biomass)
+                let cleanShare = 0;
+                let leadingFuel = '';
+                let leadingPerc = 0;
+                
+                data.generationmix.forEach(item => {
+                    if (['wind', 'solar', 'nuclear', 'hydro', 'biomass'].includes(item.fuel)) {
+                        cleanShare += item.perc;
+                    }
+                    if (item.perc > leadingPerc) {
+                        leadingPerc = item.perc;
+                        leadingFuel = item.fuel;
+                    }
+                });
+                
+                document.getElementById('dash-clean-share').textContent = cleanShare.toFixed(1) + '%';
+                document.getElementById('dash-leading-fuel').textContent = leadingFuel;
+                document.getElementById('dash-leading-perc').textContent = leadingPerc.toFixed(1) + '% of mix';
+                
+                // Render national Chart
+                renderNationalMixChart(data.generationmix);
+            })
+            .catch(err => {
+                console.error("Dashboard fetch error: ", err);
+                document.getElementById('dash-intensity').textContent = 'Error';
+                document.getElementById('dash-clean-share').textContent = 'N/A';
+                document.getElementById('dash-leading-fuel').textContent = 'Error';
+            });
+    }
+
+    let nationalChart = null;
+    function renderNationalMixChart(generationmix) {
+        const labels = generationmix.map(item => item.fuel);
+        const percentages = generationmix.map(item => item.perc);
+        
+        const ctxNat = document.getElementById('national-mix-chart');
+        if (!ctxNat) return;
+        
+        if (nationalChart) {
+            nationalChart.destroy();
+        }
+        
+        nationalChart = new Chart(ctxNat, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                percentages: percentages,
+                datasets: [{
+                    label: 'Fuel Percentage Mix (%)',
+                    data: percentages,
+                    backgroundColor: [
+                        '#059669', // biomass -> emerald green
+                        '#475569', // coal -> slate 600
+                        '#64748b', // imports -> slate 500
+                        '#d97706', // gas -> amber 600
+                        '#dc2626', // nuclear -> red
+                        '#6366f1', // other -> indigo
+                        '#2563eb', // hydro -> blue
+                        '#fbbf24', // solar -> yellow
+                        '#06b6d4'  // wind -> cyan
+                    ],
+                    borderWidth: 0,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#3d4f45', font: { family: 'Inter' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(5, 150, 105, 0.05)' },
+                        ticks: { color: '#3d4f45', font: { family: 'Inter' } }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- FETCH REAL-TIME CLIMATE NEWS FEED ---
+    function fetchClimateNews() {
+        fetch('/api/climate-news')
+            .then(res => {
+                if (!res.ok) throw new Error("News network error");
+                return res.json();
+            })
+            .then(data => {
+                const loader = document.getElementById('news-feed-loader');
+                const content = document.getElementById('news-feed-content');
+                if (loader) loader.style.display = 'none';
+                
+                if (content && data && data.length > 0) {
+                    content.innerHTML = '';
+                    data.forEach(item => {
+                        content.innerHTML += `
+                            <div class="news-card">
+                                <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="news-title-link">
+                                    ${item.title}
+                                </a>
+                                <div class="news-meta">
+                                    <span>Source: Grist Feed</span>
+                                    <span>${item.date}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    content.style.display = 'flex';
+                }
+            })
+            .catch(err => {
+                console.error("News fetch error: ", err);
+                const loader = document.getElementById('news-feed-loader');
+                if (loader) {
+                    loader.innerHTML = '<span style="color: var(--index-high); font-weight: 700;">❌ Failed to load live environmental news.</span>';
+                }
+            });
+    }
+
+    // --- FETCH REAL-TIME GLOBAL CO2 ---
+    function fetchGlobalCO2() {
+        fetch('/api/global-co2')
+            .then(res => {
+                if (!res.ok) throw new Error("CO2 network error");
+                return res.json();
+            })
+            .then(data => {
+                const valEl = document.getElementById('dash-co2');
+                const metaEl = document.getElementById('dash-co2-meta');
+                if (valEl && data.value) {
+                    valEl.textContent = data.value + ' ' + (data.unit || 'ppm');
+                }
+                if (metaEl && data.date) {
+                    let text = `NOAA Reading on ${data.date}`;
+                    if (data.trend && data.trend.rate_per_year) {
+                        text += ` (+${data.trend.rate_per_year} ppm/yr)`;
+                    }
+                    metaEl.textContent = text;
+                }
+            })
+            .catch(err => {
+                console.error("CO2 fetch error: ", err);
+                const valEl = document.getElementById('dash-co2');
+                if (valEl) valEl.textContent = '431.7 ppm';
+                const metaEl = document.getElementById('dash-co2-meta');
+                if (metaEl) metaEl.textContent = 'NOAA Reading (Static fallback)';
+            });
+    }
+
+    // --- WEATHER SIMULATOR PRESETS UI LOGIC ---
+    const weatherBtns = document.querySelectorAll('.weather-preset-btn');
+    if (weatherBtns.length > 0) {
+        // Initialize active preset state on load based on localStorage weatherMode
+        const currentMode = localStorage.getItem('weatherMode') || 'auto';
+        weatherBtns.forEach(btn => {
+            if (btn.dataset.weather === currentMode) {
+                btn.classList.add('active');
+                btn.style.background = 'var(--accent)';
+                btn.style.color = '#ffffff';
+                btn.style.borderColor = 'var(--accent)';
+            } else {
+                btn.classList.remove('active');
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--text-primary)';
+                btn.style.borderColor = 'rgba(5,150,105,0.2)';
+            }
+            
+            btn.addEventListener('click', (e) => {
+                const targetWeather = btn.dataset.weather;
+                
+                // Highlight active button
+                weatherBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.style.background = 'transparent';
+                    b.style.color = 'var(--text-primary)';
+                    b.style.borderColor = 'rgba(5,150,105,0.2)';
+                });
+                btn.classList.add('active');
+                btn.style.background = 'var(--accent)';
+                btn.style.color = '#ffffff';
+                btn.style.borderColor = 'var(--accent)';
+                
+                if (window.rainSimulator) {
+                    window.rainSimulator.setMode(targetWeather);
+                }
+            });
+        });
+    }
+
+    // Trigger loads
+    fetchNationalDashboard();
+    fetchClimateNews();
+    fetchGlobalCO2();
+
+    // Periodically refresh dashboard and CO2 data feeds in background every 30 seconds
+    setInterval(() => {
+        fetchNationalDashboard();
+        fetchGlobalCO2();
+    }, 30000);
+</script>
+
+{% endblock %}

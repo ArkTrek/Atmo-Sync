@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<a href="/" class="btn-back">
+    <i class="fa-solid fa-arrow-left"></i> Back to Home
+</a>
+
+<div class="glass-card">
+    <h2 class="glass-title">Terms of Use</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+        Last Updated: June 21, 2026
+    </p>
+    
+    <div class="info-section" style="color: var(--text-secondary); line-height: 1.6;">
+        <h3 class="info-h3" style="margin-top: 0;">1. Agreement to Terms</h3>
+        <p style="margin-bottom: 1rem;">
+            By accessing the Atmo Sync Carbon Footprint Awareness Platform, you agree to comply with and be bound by these terms. This site is provided for educational and environmental awareness purposes.
+        </p>
+        
+        <h3 class="info-h3">2. Accuracy of Estimations</h3>
+        <p style="margin-bottom: 1rem;">
+            The footprint calculations provided by this platform are estimations based on standard public emission factors (primarily IPCC and UK DEFRA). While we aim to offer high-fidelity estimates, actual footprints may vary depending on personal household efficiencies, exact driving speed, local food supply chains, and other unquantifiable variables.
+        </p>
+
+        <h3 class="info-h3">3. Real-Time Data Sources</h3>
+        <p style="margin-bottom: 1rem;">
+            The real-time grid intensity map and dashboard displays rely on open-source public data provided by the NESO API (Great Britain). This data is provided "as is" and we are not responsible for any downtime, outages, or reading inaccuracies of the external API.
+        </p>
+
+        <h3 class="info-h3">4. Intellectual Property</h3>
+        <p>
+            This application is fully open source. You are free to inspect the source code, duplicate it, or modify it for your own educational projects.
+        </p>
+    </div>
+</div>
+{% endblock %}

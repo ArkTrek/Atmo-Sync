@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ meta.desc if meta else 'Track carbon footprints in real-time, compute detailed usage across multiple categories, and discover custom mitigation solutions.' }}">
+    <meta name="author" content="Arpit Ramesan">
+    <title>{{ meta.title if meta else 'Carbon Footprint Awareness Platform' }}</title>
+    
+    <!-- Sprout Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+    
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" />
+    
+    <!-- Core Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Ambient Wind Audio -->
+    <audio id="bg-wind-audio" loop autoplay>
+        <source src="{{ url_for('static', filename='wind.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <!-- Weather Dimming Overlay and Rain Canvas for Bad Weather Simulator -->
+    <div id="weather-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -2; transition: background-color 1.2s ease; background-color: rgba(0,0,0,0);"></div>
+    <canvas id="weather-rain-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1;"></canvas>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-leaf"></i>
+                <span>Atmo Sync</span>
+            </a>
+            
+            <ul class="nav-tabs" id="nav-tabs">
+                <li>
+                    <button class="tab-btn active" data-tab="dashboard">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </button>
+                </li>
+                <li>
+                    <button class="tab-btn" data-tab="map-tab">
+                        <i class="fa-solid fa-earth-americas"></i> Real-time Map
+                    </button>
+                </li>
+                <li>
+                    <button class="tab-btn" data-tab="calculator">
+                        <i class="fa-solid fa-calculator"></i> Calculator
+                    </button>
+                </li>
+                <li>
+                    <button class="tab-btn" data-tab="solutions">
+                        <i class="fa-solid fa-lightbulb"></i> Solutions
+                    </button>
+                </li>
+                <li>
+                    <button class="tab-btn" data-tab="learn">
+                        <i class="fa-solid fa-graduation-cap"></i> Learn
+                    </button>
+                </li>
+            </ul>
+            
+            <!-- Audio sound controller -->
+            <div class="audio-control-group" style="display: flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(5,150,105,0.2); background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(8px); padding: 0 10px; border-radius: 12px; height: 38px; transition: var(--transition);" title="Ambient Sound Controller">
+                <i class="fa-solid fa-wind" style="color: var(--text-muted); font-size: 0.85rem;" title="Ambient Wind Sound"></i>
+                <button id="sound-toggle-btn" class="tab-btn" style="border: none; background: transparent; padding: 0; display: flex; justify-content: center; align-items: center; width: 22px; height: 22px; cursor: pointer; border-radius: 50%;" title="Toggle Ambient Wind Sound">
+                    <i class="fa-solid fa-volume-high" id="sound-icon" style="color: var(--accent);"></i>
+                </button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.05" style="width: 60px; height: 4px; accent-color: var(--accent); cursor: pointer; border-radius: 2px; outline: none; border: none; background: rgba(5, 150, 105, 0.2); transition: var(--transition);" title="Adjust Volume">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div>
+                &copy; 2026 Atmo Sync. All rights reserved.
+            </div>
+            
+            <div class="footer-dev-links">
+                <span>Developed by</span>
+                <a href="{{ developer.github }}" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-github"></i> {{ developer.name }}
+                </a>
+                <span>|</span>
+                <a href="{{ developer.linkedin }}" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                </a>
+            </div>
+            
+            <div class="footer-links">
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Use</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Navigation JS -->
+    <script>
+        // --- WEATHER RAIN SIMULATOR CLASS ---
+        class RainSimulator {
+            constructor(canvas, overlay) {
+                this.canvas = canvas;
+                this.overlay = overlay;
+                this.ctx = canvas.getContext('2d');
+                this.drops = [];
+                this.lightningChance = 0;
+                this.rainIntensity = 0;
+                this.speed = 0;
+                this.wind = 0;
+                this.width = 0;
+                this.height = 0;
+                this.isFlashing = false;
+                this.activeMode = 'auto';
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                this.animate = this.animate.bind(this);
+                requestAnimationFrame(this.animate);
+            }
+            
+            resize() {
+                this.width = this.canvas.width = window.innerWidth;
+                this.height = this.canvas.height = window.innerHeight;
+            }
+
+            setMode(mode, footprint = null) {
+                this.activeMode = mode;
+                localStorage.setItem('weatherMode', mode);
+
+                if (mode === 'auto') {
+                    const fp = footprint !== null ? footprint : (parseFloat(localStorage.getItem('userCarbonFootprint')) || 0);
+                    this.setIntensity(fp);
+                    return;
+                }
+                
+                // Clear any backdrop filters first
+                this.overlay.style.backdropFilter = 'none';
+                
+                switch (mode) {
+                    case 'clear':
+                        this.rainIntensity = 0;
+                        this.speed = 0;
+                        this.wind = 0;
+                        this.lightningChance = 0;
+                        // Warm golden sunny glow
+                        this.overlay.style.backgroundColor = 'rgba(251, 243, 219, 0.15)';
+                        break;
+                    case 'windy':
+                        this.rainIntensity = 0;
+                        this.speed = 0;
+                        this.wind = -3.5;
+                        this.lightningChance = 0;
+                        // Fresh sky blue breeze tint
+                        this.overlay.style.backgroundColor = 'rgba(219, 234, 254, 0.08)';
+                        break;
+                    case 'foggy':
+                        this.rainIntensity = 15;
+                        this.speed = 4;
+                        this.wind = -0.15;
+                        this.lightningChance = 0;
+                        // Misty white overlay with soft blur
+                        this.overlay.style.backgroundColor = 'rgba(241, 245, 249, 0.42)';
+                        this.overlay.style.backdropFilter = 'blur(2.5px)';
+                        break;
+                    case 'rain':
+                        this.rainIntensity = 280;
+                        this.speed = 22;
+                        this.wind = -3;
+                        this.lightningChance = 0;
+                        this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.35)';
+                        break;
+                    case 'storm':
+                        this.rainIntensity = 500;
+                        this.speed = 28;
+                        this.wind = -6;
+                        this.lightningChance = 0.008;
+                        this.overlay.style.backgroundColor = 'rgba(15, 23, 42, 0.65)';
+                        break;
+                }
+            }
+            
+            setIntensity(footprint) {
+                if (this.activeMode !== 'auto') return;
+
+                // Clear backdrop blur first
+                this.overlay.style.backdropFilter = 'none';
+
+                if (footprint < 3.0) {
+                    this.rainIntensity = 0;
+                    this.speed = 0;
+                    this.wind = 0;
+                    this.lightningChance = 0;
+                    this.overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+                } else if (footprint < 7.0) {
+                    this.rainIntensity = 40;
+                    this.speed = 10;
+                    this.wind = -0.5;
+                    this.lightningChance = 0;
+                    this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.06)';
+                } else if (footprint < 12.0) {
+                    this.rainIntensity = 120;
+                    this.speed = 16;
+                    this.wind = -1.5;
+                    this.lightningChance = 0;
+                    this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.18)';
+                } else if (footprint < 20.0) {
+                    this.rainIntensity = 280;
+                    this.speed = 22;
+                    this.wind = -3;
+                    this.lightningChance = 0.002;
+                    this.overlay.style.backgroundColor = 'rgba(28, 45, 36, 0.35)';
+                } else {
+                    this.rainIntensity = 480;
+                    this.speed = 28;
+                    this.wind = -5;
+                    this.lightningChance = 0.008;
+                    this.overlay.style.backgroundColor = 'rgba(15, 23, 42, 0.58)';
+                }
+            }
+            
+            animate() {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+                
+                if (this.lightningChance > 0 && Math.random() < this.lightningChance && !this.isFlashing) {
+                    this.triggerLightning();
+                }
+                
+                if (this.isFlashing) {
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                    this.ctx.fillRect(0, 0, this.width, this.height);
+                }
+                
+                if (this.rainIntensity > 0) {
+                    while (this.drops.length < this.rainIntensity) {
+                        this.drops.push({
+                            x: Math.random() * (this.width + 200) - 100,
+                            y: Math.random() * -this.height,
+                            len: Math.random() * 15 + 10,
+                            weight: Math.random() * 1.5 + 0.5,
+                            opacity: Math.random() * 0.3 + 0.15
+                        });
+                    }
+                    
+                    if (this.drops.length > this.rainIntensity) {
+                        this.drops.length = Math.round(this.rainIntensity);
+                    }
+                    
+                    this.drops.forEach((drop) => {
+                        drop.y += this.speed * drop.weight;
+                        drop.x += this.wind * drop.weight;
+                        
+                        if (drop.y > this.height) {
+                            drop.y = Math.random() * -100;
+                            drop.x = Math.random() * (this.width + 200) - 100;
+                        }
+                        
+                        this.ctx.beginPath();
+                        this.ctx.strokeStyle = `rgba(163, 191, 250, ${drop.opacity})`;
+                        this.ctx.lineWidth = drop.weight * 1.1;
+                        this.ctx.lineCap = 'round';
+                        this.ctx.moveTo(drop.x, drop.y);
+                        this.ctx.lineTo(drop.x + (this.wind * 0.15), drop.y + drop.len);
+                        this.ctx.stroke();
+                    });
+                } else {
+                    this.drops = [];
+                }
+                
+                requestAnimationFrame(this.animate);
+            }
+            
+            triggerLightning() {
+                this.isFlashing = true;
+                setTimeout(() => {
+                    this.isFlashing = false;
+                    setTimeout(() => {
+                        if (Math.random() > 0.4) {
+                            this.isFlashing = true;
+                            setTimeout(() => {
+                                this.isFlashing = false;
+                            }, 50);
+                        }
+                    }, 60);
+                }, 100);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Rain/Weather Simulator
+            const rainCanvas = document.getElementById('weather-rain-canvas');
+            const weatherOverlay = document.getElementById('weather-overlay');
+            if (rainCanvas && weatherOverlay) {
+                window.rainSimulator = new RainSimulator(rainCanvas, weatherOverlay);
+                const savedMode = localStorage.getItem('weatherMode') || 'auto';
+                window.rainSimulator.setMode(savedMode);
+            }
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panels = document.querySelectorAll('.tab-panel');
+
+            // Tab Switching Logic
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.tab;
+
+                    // Update active button
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // Update active panel
+                    panels.forEach(panel => {
+                        if (panel.id === target) {
+                            panel.classList.add('active');
+                        } else {
+                            panel.classList.remove('active');
+                        }
+                    });
+
+                    // Trigger custom tabChanged event for Leaflet invalidation
+                    const event = new Event('tabChanged');
+                    document.dispatchEvent(event);
+                });
+            });
+
+            // --- DRIFTING BACKGROUND CARBON ANIMATION ---
+            function spawnBackgroundCO2() {
+                if (!document.hasFocus()) return;
+
+                const molecule = document.createElement('div');
+                molecule.className = 'co2-molecule';
+                
+                // Randomly alternate between showing carbon compounds or smoke symbols
+                const symbols = ['CO₂', 'CH₄', '💨', '🌫️', 'CO₂'];
+                molecule.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                
+                // Random position & scale starting coordinates
+                const startX = Math.random() * 20 - 40; // Starts off-screen left
+                const startY = Math.random() * 70 + 10; // Start at different heights
+                
+                molecule.style.left = `${startX}px`;
+                molecule.style.top = `${startY}vh`;
+                
+                const scale = Math.random() * 0.7 + 0.6; // Elegant small scale
+                molecule.style.fontSize = `${scale}rem`;
+                
+                // Custom random drift duration
+                const duration = Math.random() * 12 + 18; // 18s to 30s
+                molecule.style.animationDuration = `${duration}s`;
+                
+                document.body.appendChild(molecule);
+                
+                // Cleanup node
+                setTimeout(() => {
+                    molecule.remove();
+                }, duration * 1000);
+            }
+            
+            function triggerNextSpawn() {
+                spawnBackgroundCO2();
+                const nextInterval = Math.random() * 5000 + 4000; // Spawn every 4 to 9 seconds
+                setTimeout(triggerNextSpawn, nextInterval);
+            }
+            
+            triggerNextSpawn();
+
+            // --- AUDIO CONTROLLER LOGIC ---
+            const audio = document.getElementById('bg-wind-audio');
+            const soundBtn = document.getElementById('sound-toggle-btn');
+            const soundIcon = document.getElementById('sound-icon');
+            const volumeSlider = document.getElementById('volume-slider');
+            
+            if (audio && soundBtn && soundIcon && volumeSlider) {
+                // Initialize default values in localStorage if not set
+                if (localStorage.getItem('ambientVolume') === null) {
+                    localStorage.setItem('ambientVolume', '0.05');
+                }
+                if (localStorage.getItem('ambientSoundEnabled') === null) {
+                    localStorage.setItem('ambientSoundEnabled', 'true');
+                }
+                
+                // Load saved volume or default to 0.05
+                let savedVolume = localStorage.getItem('ambientVolume');
+                let ambientVolume = parseFloat(savedVolume);
+                audio.volume = ambientVolume;
+                volumeSlider.value = ambientVolume;
+                
+                // Retrieve or initialize explicit user choice
+                let ambientEnabled = localStorage.getItem('ambientSoundEnabled') !== 'false';
+                let isPlaying = false;
+                
+                // Helper to update the visual state of the audio controller
+                function updateVisuals() {
+                    if (!ambientEnabled || ambientVolume === 0) {
+                        soundIcon.className = 'fa-solid fa-volume-xmark';
+                        soundIcon.style.color = '';
+                        soundBtn.style.background = 'transparent';
+                    } else {
+                        if (ambientVolume < 0.35) {
+                            soundIcon.className = 'fa-solid fa-volume-low';
+                        } else {
+                            soundIcon.className = 'fa-solid fa-volume-high';
+                        }
+                        soundIcon.style.color = 'var(--accent)';
+                        soundBtn.style.background = 'rgba(5, 150, 105, 0.08)';
+                    }
+                }
+                
+                updateVisuals();
+
+                function toggleSound(e) {
+                    if (e) {
+                        e.stopPropagation(); // Prevent triggering document level click/interaction handler
+                    }
+                    
+                    if (isPlaying) {
+                        audio.pause();
+                        isPlaying = false;
+                        ambientEnabled = false;
+                        localStorage.setItem('ambientSoundEnabled', 'false');
+                    } else {
+                        // If volume was set to 0, reset to default 0.05 to make it audible
+                        if (ambientVolume === 0) {
+                            ambientVolume = 0.05;
+                            audio.volume = ambientVolume;
+                            volumeSlider.value = ambientVolume;
+                            localStorage.setItem('ambientVolume', '0.05');
+                        }
+                        
+                        audio.play().then(() => {
+                            isPlaying = true;
+                            ambientEnabled = true;
+                            localStorage.setItem('ambientSoundEnabled', 'true');
+                            updateVisuals();
+                        }).catch(err => {
+                            console.log("Play blocked by browser policy. Interaction needed.");
+                        });
+                    }
+                    updateVisuals();
+                }
+                
+                function handleVolumeChange(e) {
+                    ambientVolume = parseFloat(volumeSlider.value);
+                    audio.volume = ambientVolume;
+                    localStorage.setItem('ambientVolume', ambientVolume);
+                    
+                    if (ambientVolume === 0) {
+                        if (isPlaying) {
+                            audio.pause();
+                            isPlaying = false;
+                        }
+                        ambientEnabled = false;
+                        localStorage.setItem('ambientSoundEnabled', 'false');
+                    } else {
+                        ambientEnabled = true;
+                        localStorage.setItem('ambientSoundEnabled', 'true');
+                        // If it's not currently playing, try to play it
+                        if (!isPlaying) {
+                            audio.play().then(() => {
+                                isPlaying = true;
+                                updateVisuals();
+                            }).catch(() => {});
+                        }
+                    }
+                    updateVisuals();
+                }
+                
+                soundBtn.addEventListener('click', toggleSound);
+                volumeSlider.addEventListener('input', handleVolumeChange);
+                volumeSlider.addEventListener('click', (e) => e.stopPropagation()); // Prevent document click bubbling
+                
+                // Play on first user interaction with the document (standard browser compliance)
+                const startAudioOnInteract = () => {
+                    // Only auto-play on interaction if the user hasn't explicitly disabled it and volume > 0
+                    if (ambientEnabled && ambientVolume > 0 && !isPlaying) {
+                        audio.play().then(() => {
+                            isPlaying = true;
+                            updateVisuals();
+                            cleanupInteractListeners();
+                        }).catch(() => {});
+                    } else if (!ambientEnabled || ambientVolume === 0) {
+                        // If explicitly disabled, clean up interaction listeners anyway
+                        cleanupInteractListeners();
+                    }
+                };
+                
+                function cleanupInteractListeners() {
+                    document.removeEventListener('click', startAudioOnInteract);
+                    document.removeEventListener('keydown', startAudioOnInteract);
+                }
+                
+                document.addEventListener('click', startAudioOnInteract);
+                document.addEventListener('keydown', startAudioOnInteract);
+
+                // Try to play immediately (in case browser autoplay is allowed)
+                if (ambientEnabled && ambientVolume > 0) {
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        updateVisuals();
+                        cleanupInteractListeners();
+                    }).catch(() => {
+                        // Safe to ignore, user interaction listener will trigger it
+                    });
+                }
+            }
+
+            // --- SWEEPING WIND STREAK GENERATOR ---
+            function spawnWindStreak() {
+                if (!document.hasFocus()) return;
+
+                const streak = document.createElement('div');
+                streak.className = 'wind-streak';
+                
+                const startY = Math.random() * 85 + 5; // Height between 5vh and 90vh
+                streak.style.top = `${startY}vh`;
+                
+                const height = Math.random() * 2 + 1; // 1px to 3px thick
+                streak.style.height = `${height}px`;
+                
+                let duration = Math.random() * 4 + 5; // 5s to 9s
+                if (window.rainSimulator) {
+                    const activeWind = Math.abs(window.rainSimulator.wind);
+                    if (activeWind > 0) {
+                        duration = Math.max(0.6, (Math.random() * 4 + 4) / (activeWind * 0.45));
+                    }
+                }
+                streak.style.animationDuration = `${duration}s`;
+                
+                document.body.appendChild(streak);
+                
+                setTimeout(() => {
+                    streak.remove();
+                }, duration * 1000);
+            }
+            
+            function triggerWindSpawn() {
+                spawnWindStreak();
+                let nextInterval = Math.random() * 4000 + 4000; // Spawn every 4 to 8 seconds
+                if (window.rainSimulator) {
+                    const activeWind = Math.abs(window.rainSimulator.wind);
+                    if (activeWind > 0) {
+                        nextInterval = Math.max(300, (Math.random() * 4000 + 4000) / (activeWind * 0.5));
+                    }
+                }
+                setTimeout(triggerWindSpawn, nextInterval);
+            }
+            
+            triggerWindSpawn();
+        });
+    </script>
+    
+    <!-- Application Logic -->
+    <script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+</body>
+</html>

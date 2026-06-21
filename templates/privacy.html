@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<a href="/" class="btn-back">
+    <i class="fa-solid fa-arrow-left"></i> Back to Home
+</a>
+
+<div class="glass-card">
+    <h2 class="glass-title">Privacy Policy</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+        Last Updated: June 21, 2026
+    </p>
+    
+    <div class="info-section" style="color: var(--text-secondary); line-height: 1.6;">
+        <h3 class="info-h3" style="margin-top: 0;">1. Data Governance</h3>
+        <p style="margin-bottom: 1rem;">
+            The Atmo Sync Carbon Footprint Awareness Platform is built with privacy at its core. **We do not collect, store, or transmit any personal data** entered in the carbon calculator to our servers or any third-party databases.
+        </p>
+        <p style="margin-bottom: 1rem;">
+            All inputs, sliders, select values, and resulting calculations are processed **locally inside your web browser**. 
+        </p>
+        
+        <h3 class="info-h3">2. Cookies and Storage</h3>
+        <p style="margin-bottom: 1rem;">
+            This website does not use tracking cookies. We do not store session tokens or track your browsing activity across the web.
+        </p>
+
+        <h3 class="info-h3">3. External Connections</h3>
+        <p style="margin-bottom: 1rem;">
+            Our application acts as a proxy to fetch live electricity grid carbon intensity data from the official, open-source National Energy System Operator (NESO) API. No identifiable personal information of yours is sent to the NESO servers.
+        </p>
+
+        <h3 class="info-h3">4. Contact</h3>
+        <p>
+            If you have any questions regarding these privacy practices, please contact the developer via the links in the footer.
+        </p>
+    </div>
+</div>
+{% endblock %}
